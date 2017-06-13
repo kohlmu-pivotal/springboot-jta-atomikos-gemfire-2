@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package sample.narayana;
+package sample.atomikos;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+public class SampleRuntimeException extends RuntimeException {
 
-public interface AccountRepository extends JpaRepository<Account, Long> {
+	public SampleRuntimeException(String message) {
+		super(message);
+	}
 
 }

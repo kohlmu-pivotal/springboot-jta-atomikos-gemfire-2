@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
-package sample.narayana;
+package sample.atomikos;
 
-public class SampleRuntimeException extends RuntimeException {
+import org.springframework.jms.annotation.JmsListener;
+import org.springframework.stereotype.Component;
 
-	public SampleRuntimeException(String message) {
-		super(message);
+@Component
+public class Messages {
+
+	@JmsListener(destination = "accounts")
+	public void onMessage(String content) {
+		System.out.println("----> " + content);
 	}
 
 }

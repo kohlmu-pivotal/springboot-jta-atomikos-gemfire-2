@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package sample.narayana;
+package sample.atomikos;
 
 import org.assertj.core.api.Condition;
 import org.junit.Rule;

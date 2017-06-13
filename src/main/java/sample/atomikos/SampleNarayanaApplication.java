@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package sample.narayana;
+package sample.atomikos;
 
 import com.atomikos.icatch.jta.UserTransactionManager;
 import com.gemstone.gemfire.cache.Cache;
@@ -28,7 +28,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import sample.narayana.jndi.SimpleNamingContextBuilder;
+import sample.atomikos.jndi.SimpleNamingContextBuilder;
 
 import javax.annotation.PostConstruct;
 import javax.naming.NamingException;

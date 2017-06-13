@@ -14,17 +14,10 @@
  * limitations under the License.
  */
 
-package sample.narayana;
+package sample.atomikos;
 
-import org.springframework.jms.annotation.JmsListener;
-import org.springframework.stereotype.Component;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-@Component
-public class Messages {
-
-	@JmsListener(destination = "accounts")
-	public void onMessage(String content) {
-		System.out.println("----> " + content);
-	}
+public interface AccountRepository extends JpaRepository<Account, Long> {
 
 }
