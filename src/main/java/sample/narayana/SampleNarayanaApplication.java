@@ -16,26 +16,24 @@
 
 package sample.narayana;
 
-import static com.gemstone.gemfire.cache.DataPolicy.PARTITION;
-
-import javax.annotation.PostConstruct;
-import javax.naming.NamingException;
-
+import com.atomikos.icatch.jta.UserTransactionManager;
+import com.gemstone.gemfire.cache.Cache;
+import com.gemstone.gemfire.cache.CacheFactory;
+import com.gemstone.gemfire.cache.Region;
+import com.gemstone.gemfire.distributed.ServerLauncher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
-import com.arjuna.ats.internal.jta.transaction.arjunacore.UserTransactionImple;
-import com.gemstone.gemfire.cache.Cache;
-import com.gemstone.gemfire.cache.CacheFactory;
-import com.gemstone.gemfire.cache.Region;
-import com.gemstone.gemfire.distributed.ServerLauncher;
 import sample.narayana.jndi.SimpleNamingContextBuilder;
+
+import javax.annotation.PostConstruct;
+import javax.naming.NamingException;
+
+import static com.gemstone.gemfire.cache.DataPolicy.PARTITION;
 
 @SpringBootApplication
 @EnableTransactionManagement
@@ -56,10 +54,13 @@ public class SampleNarayanaApplication implements CommandLineRunner {
 		}
 	}
 
+	@Autowired
+	private UserTransactionManager atomikosTxManager;
+
 	@PostConstruct
 	public void registerNarayanaUserTransaction() {
 		// Gemfire uses JNDI:java:comp/UserTransaction to lookup global transactions.
-		inMemoryJndiBuilder.bind("java:comp/UserTransaction", new UserTransactionImple());
+		inMemoryJndiBuilder.bind("java:comp/UserTransaction", atomikosTxManager);
 	}
 
 	@Autowired
