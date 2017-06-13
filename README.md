@@ -1,4 +1,4 @@
-# springboot-gemfire-jpa-atomikos
+# springboot-gemfire-jpa-jms-atomikos
 Atomikos JTA provider as global transaction manager to coordinate GemFire/Geode cache transactions with JPA/JDBC and/or JMS resources.
 
 [Atomikos](https://github.com/atomikos/transactions-essentials) is light-weight (e.g. out-of-container), embeddable global 
