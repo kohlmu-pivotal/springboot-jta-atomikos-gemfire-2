@@ -16,33 +16,40 @@
 
 package sample.atomikos;
 
-import com.atomikos.icatch.jta.UserTransactionManager;
-import com.gemstone.gemfire.cache.Cache;
-import com.gemstone.gemfire.cache.CacheFactory;
-import com.gemstone.gemfire.cache.Region;
-import com.gemstone.gemfire.distributed.ServerLauncher;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
-import sample.atomikos.jndi.SimpleNamingContextBuilder;
-
 import javax.annotation.PostConstruct;
 import javax.naming.NamingException;
+import javax.transaction.TransactionManager;
 
-import static com.gemstone.gemfire.cache.DataPolicy.PARTITION;
+import com.atomikos.icatch.jta.UserTransactionManager;
+
+import org.apache.geode.cache.Region;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.gemfire.config.annotation.CacheServerApplication;
+import org.springframework.data.gemfire.config.annotation.EnableGemFireAsLastResource;
+import org.springframework.data.gemfire.config.annotation.EnableManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import sample.atomikos.config.SampleNarayanaConfig;
+import sample.atomikos.jndi.SimpleNamingContextBuilder;
 
 @SpringBootApplication
-@EnableTransactionManagement
-public class SampleNarayanaApplication implements CommandLineRunner {
+@EnableTransactionManagement(order = 1)
+@CacheServerApplication
+@EnableGemFireAsLastResource
+@EnableManager(start = true)
+public class SampleNarayanaApplication {
 
 	private static final Logger LOG = LoggerFactory.getLogger(SampleNarayanaApplication.class);
 
 	// In-Memory JNDI service used by Gemfire to lookup global transactions.
-	private static SimpleNamingContextBuilder inMemoryJndiBuilder ;
+	private static SimpleNamingContextBuilder inMemoryJndiBuilder;
 
 	// Note: the SimpleNamingContextBuilder MUST be created before the Spring Application Context!!!
 	static {
@@ -54,8 +61,11 @@ public class SampleNarayanaApplication implements CommandLineRunner {
 		}
 	}
 
-	@Autowired
-	private UserTransactionManager atomikosTxManager;
+	private final TransactionManager atomikosTxManager;
+
+	public SampleNarayanaApplication(TransactionManager atomikosTxManager) {
+		this.atomikosTxManager = atomikosTxManager;
+	}
 
 	@PostConstruct
 	public void registerNarayanaUserTransaction() {
@@ -63,42 +73,28 @@ public class SampleNarayanaApplication implements CommandLineRunner {
 		inMemoryJndiBuilder.bind("java:comp/UserTransaction", atomikosTxManager);
 	}
 
-	@Autowired
-	private AccountService service;
-
-	@Autowired
-	private AccountRepository repository;
-
 	public static void main(String[] args) throws Exception {
-		SpringApplication.run(SampleNarayanaApplication.class, args).close();
+		new SpringApplicationBuilder(SampleNarayanaApplication.class)
+			.web(WebApplicationType.NONE)
+			.build()
+			.run(args).close();
 	}
 
-	@Override
-	public void run(String... strings) throws Exception {
 
-		ServerLauncher serverLauncher = new ServerLauncher.Builder()
-				.set("jmx-manager", "true")
-				.set("jmx-manager-start", "true")
-				.build();
-
-		ServerLauncher.ServerState start = serverLauncher.start();
-
-		Cache cache = new CacheFactory().create();
-
-		Region<String, Account> region = cache.<String, Account>createRegionFactory()
-				.setDataPolicy(PARTITION)
-				.create("testRegion");
-
-		service.createAccountAndNotify("josh", region);
-		LOG.info("Count is " + repository.count());
-		try {
-			// Using username "error" will cause service to throw SampleRuntimeException
-			service.createAccountAndNotify("error", region);
-		}
-		catch (SampleRuntimeException ex) {
-			// Log message to let test case know that exception was thrown
-			LOG.error(ex.getMessage());
-		}
-		LOG.info("Count is " + repository.count());
+	@Bean
+	public ApplicationRunner run(AccountService service, AccountRepository repository, Region region) {
+		return args -> {
+			service.createAccountAndNotify("josh", region);
+			LOG.info("Count is " + repository.count());
+			try {
+				// Using username "error" will cause service to throw SampleRuntimeException
+				service.createAccountAndNotify("error", region);
+			}
+			catch (SampleRuntimeException ex) {
+				// Log message to let test case know that exception was thrown
+				LOG.error(ex.getMessage());
+			}
+			LOG.info("Count is " + repository.count());
+		};
 	}
 }

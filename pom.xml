@@ -5,12 +5,12 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.4.1.RELEASE</version>
+        <version>2.2.6.RELEASE</version>
         <relativePath/>
     </parent>
     <artifactId>springboot-jta-atomikos-gemfire-2</artifactId>
     <name>springboot-jta-atomikos-gemfire-2</name>
-    <description>Spring Boot Atomikos JTA, JMS and Gemfire Sample</description>
+    <description>Spring Boot Atomikos JTA, JMS and Geode Sample</description>
     <url>http://projects.spring.io/spring-boot/</url>
 
     <dependencies>
@@ -49,6 +49,12 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.geode</groupId>
+            <artifactId>spring-geode-starter</artifactId>
+            <version>1.2.6.RELEASE</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -58,56 +64,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <repositories>
-        <repository>
-            <id>gemfire-release-repo</id>
-            <name>Pivotal GemFire Release Repository</name>
-            <url>https://commercial-repo.pivotal.io/data3/gemfire-release-repo/gemfire</url>
-        </repository>
-    </repositories>
-
-    <profiles>
-        <profile>
-            <id>geode</id>
-            <dependencies>
-                <dependency>
-                    <groupId>org.springframework.data</groupId>
-                    <artifactId>spring-data-geode</artifactId>
-                    <version>1.0.0.APACHE-GEODE-INCUBATING-M3</version>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <id>gemfire</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-data-gemfire</artifactId>
-                </dependency>
-
-                <dependency>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-core</artifactId>
-                    <version>2.6.2</version>
-                </dependency>
-
-                <dependency>
-                    <groupId>com.gemstone.gemfire</groupId>
-                    <artifactId>gemfire</artifactId>
-                    <version>8.2.5</version>
-                    <exclusions>
-                        <exclusion>
-                            <artifactId>spring-web</artifactId>
-                            <groupId>org.springframework</groupId>
-                        </exclusion>
-                    </exclusions>
-                </dependency>
-            </dependencies>
-        </profile>
-    </profiles>
-
 </project>

@@ -22,7 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
-import com.gemstone.gemfire.cache.Region;
+import org.apache.geode.cache.Region;
 
 @Service
 @Transactional
@@ -38,14 +38,15 @@ public class AccountService {
 		this.accountRepository = accountRepository;
 	}
 
-	public void createAccountAndNotify(String username, Region<String, Account> region) {
-		this.jmsTemplate.convertAndSend("accounts", username);
-
+	public void createAccountAndNotify(String username, Region<String, Account> region)
+	{
 		Account account = new Account(username);
 
 		this.accountRepository.save(account);
 
 		region.put(username, account);
+
+		this.jmsTemplate.convertAndSend("accounts", username);
 
 		if ("error".equals(username)) {
 			throw new SampleRuntimeException("Simulated error");
